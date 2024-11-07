@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 
  
-var usersRouter = require("./routes/users");
+var usersRouter = require("./src/routes/user.router");
 app.use("/users", usersRouter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
