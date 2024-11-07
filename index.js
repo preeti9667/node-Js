@@ -5,11 +5,13 @@ var createError = require("http-errors");
 const app = express();
 const port = 3000;
 
- 
-var usersRouter = require("./app/routes/user.router");
+var usersRouter = require("./src/app/routes/user.router");
+const { mongodb } = require("./src/databases/mongodb");
 app.use("/users", usersRouter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+mongodb();
 app.use(function (req, res, next) {
   next(createError(404));
 });
