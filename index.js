@@ -6,12 +6,17 @@ const app = express();
 const port = 3000;
 
 var usersRouter = require("./src/app/routes/user.router");
+var loginUserRouter = require("./src/app/routes/loginUser.router")
 const { mongodb } = require("./src/databases/mongodb");
-app.use("/users", usersRouter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+
+app.use("/users", usersRouter);
+app.use("/loginUsers", loginUserRouter)
 mongodb();
+
+
 app.use(function (req, res, next) {
   next(createError(404));
 });
