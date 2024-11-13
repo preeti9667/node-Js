@@ -69,6 +69,8 @@ async function upDateUser(req, res, next) {
   );
   res.status(200).json(upDateData)
 }
+
+
 async function deleteUser(req, res, next) {
   const contact = await userModel.findById(req.params.id);
   if(!contact){

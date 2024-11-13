@@ -7,7 +7,7 @@ const loginUserSchema = new Schema({
 
     },
     password:{
-        type: Number
+    type: Number
     }
 })
 const loginUserModel = mongoose.model("loginUser", loginUserSchema);

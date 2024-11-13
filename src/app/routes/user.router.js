@@ -4,6 +4,7 @@ var router = express.Router();
 
 /* GET users listing. */
 router.get("/", getUser);
+
 router.post('/', addUser);
 router.put("/:id", upDateUser)
 router.delete("/:id", deleteUser)

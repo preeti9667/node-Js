@@ -3,18 +3,23 @@ var cookieParser = require("cookie-parser");
 var createError = require("http-errors");
 
 const app = express();
-const port = 3000;
+// const port = 3000
+require("dotenv").config();
+const PORT = process.env.PORT || 3000
 
 var usersRouter = require("./src/app/routes/user.router");
 var loginUserRouter = require("./src/app/routes/loginUser.router")
 const { mongodb } = require("./src/databases/mongodb");
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: false }));
 
 
 app.use("/users", usersRouter);
 app.use("/loginUsers", loginUserRouter)
+
 mongodb();
+
 
 
 app.use(function (req, res, next) {
@@ -31,6 +36,6 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-app.listen(port, () => {
-  console.log(`app listening on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`app listening on port 3000`);
 });
