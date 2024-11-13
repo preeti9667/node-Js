@@ -1,8 +1,7 @@
 const { HTTP_STATUS } = require("../constants/status.constant");
-const loginUserModel = require("../models/loginUser.model");
 const userModel = require("../models/user.model");
 const { createJwt } = require("../utils/jwt.util");
-const { encryptPassword } = require("../utils/password.util");
+const { encryptPassword, comparePassword } = require("../utils/password.util");
 
 //  Middleware function
 
@@ -21,7 +20,7 @@ async function signUp(req, res, next) {
     const passwordEncrypted = await encryptPassword(password);
     const user = await userModel.create({
       email,
-      password:passwordEncrypted,
+      password: passwordEncrypted,
     });
 
     const token = await createJwt(
@@ -44,7 +43,7 @@ async function signUp(req, res, next) {
       },
     });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
@@ -60,7 +59,7 @@ async function login(req, res, next) {
       });
     }
 
-    const loginUser = await loginUserModel.findOne({ email });
+    const loginUser = await userModel.findOne({ email });
     if (!loginUser) {
       return res.status(400).json({
         status: 400,
@@ -68,7 +67,8 @@ async function login(req, res, next) {
       });
     }
 
-    if (loginUser.password !== password) {
+    const match = await comparePassword(password, loginUser.password);
+    if (!match) {
       return res.status(400).json({
         status: 400,
         message: "Incorrect email & password",
@@ -91,6 +91,7 @@ async function login(req, res, next) {
       },
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
