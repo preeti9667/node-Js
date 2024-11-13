@@ -1,14 +1,20 @@
-var  express = require('express');
+var express = require("express");
 
-const {addLoginUser,upDateLoginUser,getLoginUsers,deleteLoginUser, login} = require('../controllers/auth.controllers')
+const {
+  upDateLoginUser,
+  getLoginUsers,
+  deleteLoginUser,
+  login,
+  signUp,
+} = require("../controllers/auth.controllers");
 var router = express.Router();
 
 // router.get("/", getLoginUser);
-router.post("/", addLoginUser);
+router.post("/signup", signUp);
 router.post("/login", login);
 
 router.get("/", getLoginUsers);
 router.delete("/:id", deleteLoginUser);
-router.put("/:id", upDateLoginUser)
+router.put("/:id", upDateLoginUser);
 
 module.exports = router;

@@ -1,21 +1,50 @@
+const { HTTP_STATUS } = require("../constants/status.constant");
 const loginUserModel = require("../models/loginUser.model");
+const userModel = require("../models/user.model");
 const { createJwt } = require("../utils/jwt.util");
+const { encryptPassword } = require("../utils/password.util");
 
 //  Middleware function
 
-async function addLoginUser(req, res, next) {
+async function signUp(req, res, next) {
   try {
-    const body = req.body;
+    const { email, password } = req.body;
 
-    //   console.log(body)
-    const user = await loginUserModel.create(body);
+    const isExists = await userModel.exists({ email });
+    if (isExists) {
+      return res.status(HTTP_STATUS.conflict).json({
+        status: HTTP_STATUS.conflict,
+        message: "Email exists already",
+      });
+    }
+
+    const passwordEncrypted = await encryptPassword(password);
+    const user = await userModel.create({
+      email,
+      password:passwordEncrypted,
+    });
+
+    const token = await createJwt(
+      {
+        id: user.id,
+        email,
+      },
+      "1d"
+    );
 
     return res.status(200).json({
       status: 200,
-      message: "login user created",
-      data: { user },
+      message: "Sign successful",
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+        token,
+      },
     });
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: "Internal server Error" });
   }
 }
@@ -104,11 +133,10 @@ async function login(req, res, next) {
   }
 }
 
-
 module.exports = {
-  addLoginUser,
+  signUp,
   getLoginUsers,
   deleteLoginUser,
   upDateLoginUser,
-  login
+  login,
 };
