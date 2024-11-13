@@ -5,14 +5,23 @@ var createError = require("http-errors");
 const app = express();
 // const port = 3000
 require("dotenv").config();
+
 const PORT = process.env.PORT || 3000
 
+
 var usersRouter = require("./src/app/routes/user.router");
-var loginUserRouter = require("./src/app/routes/loginUser.router")
+var loginUserRouter = require("./src/app/routes/auth.router")
 const { mongodb } = require("./src/databases/mongodb");
+
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: false }));
+// const passport = require("./auth");
+
+// app.use(passport.initialize());
+// const localAuthMiddleware = passport.authenticate('local', {session: false})
+
+
 
 
 app.use("/users", usersRouter);
@@ -35,6 +44,7 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
 
 app.listen(PORT, () => {
   console.log(`app listening on port 3000`);
