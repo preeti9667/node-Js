@@ -49,44 +49,6 @@ async function signUp(req, res, next) {
   }
 }
 
-async function getLoginUsers(req, res, next) {
-  try {
-    const data = await loginUserModel.find();
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server Error" });
-  }
-}
-
-async function upDateLoginUser(req, res, next) {
-  const contact = await loginUserModel.findById(req.params.id);
-  if (!contact) {
-    res.status(404);
-    throw new Error("not found UpData");
-  }
-  const upDateData = await loginUserModel.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true }
-  );
-
-  res.status(200).json(upDateData);
-}
-
-async function deleteLoginUser(req, res, next) {
-  try {
-    const personId = req.params.id;
-    const response = await loginUserModel.findByIdAndDelete(personId);
-
-    if (!response) {
-      return res.status(400).json({ Error: "error" });
-    }
-    res.status(200).json({ message: "delete" });
-  } catch (error) {
-    res.status(500).json({ error: "Internal server Error" });
-  }
-}
-
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
@@ -135,8 +97,5 @@ async function login(req, res, next) {
 
 module.exports = {
   signUp,
-  getLoginUsers,
-  deleteLoginUser,
-  upDateLoginUser,
   login,
 };
