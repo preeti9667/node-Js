@@ -1,55 +1,35 @@
+const adminModel = require("../models/admin.model");
 const { HTTP_STATUS } = require("../constants/status.constant");
-const userModel = require("../models/user.model");
 const { createJwt } = require("../utils/jwt.util");
 const { encryptPassword, comparePassword } = require("../utils/password.util");
 
-//  Middleware function
-
-async function signUp(req, res, next) {
+async function adminUserCreate() {
+  console.log("Checking admin")
   try {
-    const { email, password, firstName, lastName } = req.body;
+    const data = {
+      email: process.env.ADMIN_EMAIL,
+      password: process.env.ADMIN_PASSWORD,
+      name: process.env.ADMIN_NAME,
+      phone: process.env.ADMIN_PHONE_NUMBER,
+    };
 
-    const isExists = await userModel.exists({ email });
+    const isExists = await adminModel.exists({ email: data.email });
     if (isExists) {
-      return res.status(HTTP_STATUS.conflict).json({
-        status: HTTP_STATUS.conflict,
-        message: "Email exists already",
-      });
+      console.log("Amin exists already");
+      return;
     }
-    
-
-    const passwordEncrypted = await encryptPassword(password);
-    const user = await userModel.create({
-      email,
-      password: passwordEncrypted,
-      firstName,
-      lastName
+    const passwordEncrypted = await encryptPassword(data.password);
+     await adminModel.create({
+      ...data,
+      password: passwordEncrypted
     });
-
-    const token = await createJwt(
-      {
-        id: user.id,
-        email,
-      },
-      "1d"
-    );
-
-    return res.status(200).json({
-      status: 200,
-      message: "Sign successful",
-      data: {
-        user: {
-          id: user.id,
-          email: user.email,
-        },
-        token,
-      },
-    });
+    console.log("Admin created")
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server Error" });
   }
 }
+
+
 
 async function login(req, res, next) {
   try {
@@ -62,7 +42,7 @@ async function login(req, res, next) {
       });
     }
 
-    const loginUser = await userModel.findOne({ email });
+    const loginUser = await adminModel.findOne({ email });
     if (!loginUser) {
       return res.status(400).json({
         status: 400,
@@ -98,8 +78,7 @@ async function login(req, res, next) {
     res.status(500).json({ error: "Internal server Error" });
   }
 }
-
 module.exports = {
-  signUp,
   login,
+  adminUserCreate
 };

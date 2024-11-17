@@ -10,23 +10,21 @@ const PORT = process.env.PORT || 3000
 
 
 var usersRouter = require("./src/app/routes/user.router");
-var authRouter = require("./src/app/routes/auth.router")
+var authRouter = require("./src/app/routes/auth.router");
+var adminRouter = require("./src/app/routes/admin.router")
 const { mongodb } = require("./src/databases/mongodb");
 
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: false }));
-// const passport = require("./auth");
 
-// app.use(passport.initialize());
-// const localAuthMiddleware = passport.authenticate('local', {session: false})
 
 
 
 
 app.use("/users", usersRouter);
 app.use("/auth", authRouter)
-
+app.use("/admin", adminRouter)
 mongodb();
 
 
