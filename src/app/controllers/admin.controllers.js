@@ -41,7 +41,11 @@ async function adminUserCreate() {
 
 async function getAdminUser(req, res, next) {
   try {
-    const data = await adminModel.findById();
+    const data = await adminModel.findById(req.params.id);
+
+    if(!data){
+      return console.log("id is not found")
+    }
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: "Internal server Error" });
