@@ -7,8 +7,8 @@ const adminValidator = require('../validators/admin.validators')
 var router = express.Router();
 
 
-// router.post("/singUp",adminSignUpValidators, signUp)
 router.post("/login", adminValidator.adminLoginValidator, adminController.login)
+router.get("/login", adminController.getAdminUser)
 
 
 module.exports = router
