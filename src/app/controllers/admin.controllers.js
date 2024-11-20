@@ -1,10 +1,10 @@
 const adminModel = require("../models/admin.model");
 const { HTTP_STATUS } = require("../constants/status.constant");
-const { createJwt } = require("../utils/jwt.util");
+const { createJwt, verifyJwt } = require("../utils/jwt.util");
 const { encryptPassword, comparePassword } = require("../utils/password.util");
 
 async function adminUserCreate() {
-  console.log("Checking admin")
+  console.log("Checking admin");
   try {
     const data = {
       email: process.env.ADMIN_EMAIL,
@@ -19,11 +19,11 @@ async function adminUserCreate() {
       return;
     }
     const passwordEncrypted = await encryptPassword(data.password);
-     await adminModel.create({
+    await adminModel.create({
       ...data,
-      password: passwordEncrypted
+      password: passwordEncrypted,
     });
-    console.log("Admin created")
+    console.log("Admin created");
   } catch (error) {
     console.error(error);
   }
@@ -38,22 +38,40 @@ async function adminUserCreate() {
 //   }
 // }
 
-
 async function getAdminUser(req, res, next) {
   try {
-    const user = await adminModel.findById(req.params.id);
+    console.log(req.headers);
+    const authorization = req.headers.authorization;
+    if (!authorization) {
+      return res.status(HTTP_STATUS.unAuthorize).json({
+        status: HTTP_STATUS.unAuthorize,
+        message: "Unauthorized",
+      });
+    }
+    const [method, token] = authorization.split(" ");
 
-    if(!user){
-      console.log("user not found")
+    if (method !== "Bearer" || !token) {
+      return res.status(HTTP_STATUS.unAuthorize).json({
+        status: HTTP_STATUS.unAuthorize,
+        message: "Unauthorized",
+      });
+    }
+
+    const decodedToken = await verifyJwt(token);
+    const adminId = decodedToken.id;
+
+
+    const user = await adminModel.findById(adminId);
+
+    if (!user) {
+      console.log("user not found");
     }
     res.status(200).json(user);
-    
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
-
-
 
 async function login(req, res, next) {
   try {
@@ -105,5 +123,5 @@ async function login(req, res, next) {
 module.exports = {
   login,
   adminUserCreate,
- getAdminUser
+  getAdminUser,
 };
