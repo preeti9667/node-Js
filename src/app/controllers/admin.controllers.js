@@ -40,7 +40,6 @@ async function adminUserCreate() {
 
 async function getAdminUser(req, res, next) {
   try {
-    console.log(req.headers);
     const authorization = req.headers.authorization;
     if (!authorization) {
       return res.status(HTTP_STATUS.unAuthorize).json({
@@ -59,12 +58,13 @@ async function getAdminUser(req, res, next) {
 
     const decodedToken = await verifyJwt(token);
     const adminId = decodedToken.id;
-
-
     const user = await adminModel.findById(adminId);
 
     if (!user) {
-      console.log("user not found");
+      return res.status(HTTP_STATUS.badRequest).json({
+        status: HTTP_STATUS.badRequest,
+        message: "user not found",
+      });
     }
     res.status(200).json(user);
   } catch (error) {
