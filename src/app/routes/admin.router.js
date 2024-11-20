@@ -8,7 +8,7 @@ var router = express.Router();
 
 
 router.post("/login", adminValidator.adminLoginValidator, adminController.login)
-router.put("/login:id", adminController.getAdminUser)
+router.get("/login/:id", adminController.getAdminUser)
 
 
 module.exports = router
