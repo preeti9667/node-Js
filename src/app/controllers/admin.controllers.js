@@ -40,25 +40,10 @@ async function adminUserCreate() {
 
 async function getAdminUser(req, res, next) {
   try {
-    const authorization = req.headers.authorization;
-    if (!authorization) {
-      return res.status(HTTP_STATUS.unAuthorize).json({
-        status: HTTP_STATUS.unAuthorize,
-        message: "Unauthorized",
-      });
-    }
-    const [method, token] = authorization.split(" ");
-
-    if (method !== "Bearer" || !token) {
-      return res.status(HTTP_STATUS.unAuthorize).json({
-        status: HTTP_STATUS.unAuthorize,
-        message: "Unauthorized",
-      });
-    }
-
-    const decodedToken = await verifyJwt(token);
-    const adminId = decodedToken.id;
-    const user = await adminModel.findById(adminId);
+    const adminId = req.adminId;
+    const user = await adminModel.findById(adminId).select([
+      '_id', 'name', 'email','phone', 'createdAt'
+    ]);
 
     if (!user) {
       return res.status(HTTP_STATUS.badRequest).json({

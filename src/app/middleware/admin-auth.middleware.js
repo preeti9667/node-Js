@@ -30,6 +30,7 @@ const AdminAuthMiddleware = async (req, res, next) => {
         message: "Unauthorize",
       });
     }
+    req.adminId = admin._id;
     next();
   } catch (error) {
     console.error(error);
