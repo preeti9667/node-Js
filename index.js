@@ -12,6 +12,8 @@ const PORT = process.env.PORT || 3000
 var usersRouter = require("./src/app/routes/user.router");
 var authRouter = require("./src/app/routes/auth.router");
 var adminRouter = require("./src/app/routes/admin.router")
+var meetingRouter = require("./src/app/routes/meeting.router")
+
 const { mongodb } = require("./src/databases/mongodb");
 
 app.use(express.json());
@@ -25,6 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/users", usersRouter);
 app.use("/auth", authRouter)
 app.use("/admin", adminRouter)
+app.use("/meeting", meetingRouter);
 mongodb();
 
 
