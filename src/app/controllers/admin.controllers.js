@@ -29,14 +29,6 @@ async function adminUserCreate() {
   }
 }
 
-// async function getAdminUser(req, res, next) {
-//   try {
-//     const data = await adminModel.find();
-//     res.status(200).json(data);
-//   } catch (error) {
-//     res.status(500).json({ error: "Internal server Error" });
-//   }
-// }
 
 async function getAdminUser(req, res, next) {
   try {

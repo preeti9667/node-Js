@@ -18,19 +18,10 @@ const meetingSchema = new Schema({
     type: String,
   },
   status: {
-    created: {
-      type: String,
-    },
-    ongoing: {
-      type: String,
-    },
-    completed: {
-      type: String,
-    },
-    cancel: {
-      type: String,
-    },
-  },
+    type: String,
+    // enum: ['created','ongoing', 'completed', 'canceled'],
+    // default:'created'
+  }
 });
 
 

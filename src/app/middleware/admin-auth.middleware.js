@@ -1,6 +1,6 @@
-const { HTTP_STATUS } = require("../../constants/status.constant");
-const adminModel = require("../../models/admin.model");
-const { verifyJwt } = require("../../utils/jwt.util");
+const { HTTP_STATUS } = require("../constants/status.constant");
+const adminModel = require("../models/admin.model");
+const { verifyJwt } = require("../utils/jwt.util");
 
 const AdminAuthMiddleware = async (req, res, next) => {
   try {
@@ -32,7 +32,7 @@ const AdminAuthMiddleware = async (req, res, next) => {
     }
     req.adminId = admin._id;
     next();
-  } catch (error) {j
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
