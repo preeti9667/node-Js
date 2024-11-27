@@ -48,16 +48,52 @@ async function createMeeting(req, res, next) {
 
 async function getMeetingList(req, res, next) {
   try {
-    const meetingList = await meetingModel.find();
+    // const meetingList = await meetingModel.find();
 
-    return res.status(200).json({
+    // return res.status(200).json({
+      // meetingList,
+    // });
+
+    const page = parseInt(req.query.page) -1 || 0;
+    const limit = parseInt(req.query.limit) || 2;
+    const search = req.query.search || "";
+
+    
+  let  short =  req.query.short || "id";
+  req.query.short ? (short=req.query.short.split(",")): (short=[short])
+  let shortyBt = {};
+  if(short[1]){
+    shortyBt[short[0]]= short[1]
+  }else{
+    shortyBt[short[0]] = "asc"
+  }
+
+
+    let meetingList = await meetingModel.find({
+      "$or":[
+          {title:{$regex: search, $options:"i"}},
+      ] 
+    }).skip(page*limit).limit(limit)
+
+    let total = await meetingModel.countDocuments({title:{$regex: search, $options:"i"}})
+  let pageCount = Math.ceil(total/limit)
+
+
+  return res.status(200).json({
       meetingList,
+      total,
+      page: page+1,
+      pageCount,
+      limit
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
+
+
 async function getMeeting(req, res, next) {
   try {
     const meetingId = req.params.id;
