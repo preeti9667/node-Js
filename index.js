@@ -5,6 +5,7 @@ var createError = require("http-errors");
 const app = express();
 // const port = 3000
 require("dotenv").config();
+const cors = require("cors")
 
 const PORT = process.env.PORT || 3000
 
@@ -16,6 +17,13 @@ var meetingRouter = require("./src/app/routes/meeting.router")
 
 const { mongodb } = require("./src/databases/mongodb");
 
+
+var corsOptions = {
+  origin: 'http://localhost:3001',
+ method: "GET ,POST, PUT, DELETE , PATCH ",
+ credentials: true,
+}
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: false }));
