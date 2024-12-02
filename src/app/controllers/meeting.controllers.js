@@ -24,8 +24,13 @@ async function createMeeting(req, res, next) {
         .json({ message: "All fields are required except status." });
     }
 
-    if(!["created","ongoing","completed","canceled"].includes(status)){
-      return res.status(400).json({ message: 'Invalid status value. Use " created","ongoing", completed, or canceled.' });
+    if (!["created", "ongoing", "completed", "canceled"].includes(status)) {
+      return res
+        .status(400)
+        .json({
+          message:
+            'Invalid status value. Use " created","ongoing", completed, or canceled.',
+        });
     }
 
     const meeting = await meetingModel.create({
@@ -48,51 +53,28 @@ async function createMeeting(req, res, next) {
 
 async function getMeetingList(req, res, next) {
   try {
-    // const meetingList = await meetingModel.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    // return res.status(200).json({
-      // meetingList,
-    // });
+    const count = await meetingModel.countDocuments();
+    const list = await meetingModel.find({}).skip(skip).limit(limit);
 
-    const page = parseInt(req.query.page) -1 || 0;
-    const limit = parseInt(req.query.limit) || 2;
-    const search = req.query.search || "";
-
-    
-  let  short =  req.query.short || "id";
-  req.query.short ? (short=req.query.short.split(",")): (short=[short])
-  let shortyBt = {};
-  if(short[1]){
-    shortyBt[short[0]]= short[1]
-  }else{
-    shortyBt[short[0]] = "asc"
-  }
-
-
-    let meetingList = await meetingModel.find({
-      "$or":[
-          {title:{$regex: search, $options:"i"}},
-      ] 
-    }).skip(page*limit).limit(limit)
-
-    let total = await meetingModel.countDocuments({title:{$regex: search, $options:"i"}})
-  let pageCount = Math.ceil(total/limit)
-
-
-  return res.status(200).json({
-      meetingList,
-      total,
-      page: page+1,
-      pageCount,
-      limit
+    return res.status(HTTP_STATUS.success).json({
+      status: HTTP_STATUS.success,
+      message: "Meetings list",
+      data: {
+        count,
+        page,
+        limit,
+        list,
+      },
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
-
 
 async function getMeeting(req, res, next) {
   try {
@@ -121,12 +103,10 @@ async function aditMeeting(req, res, next) {
     }
 
     if (!["created", "ongoing", "completed", "canceled"].includes(status)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            'Invalid status value. Use " created","ongoing", completed, or canceled.',
-        });
+      return res.status(400).json({
+        message:
+          'Invalid status value. Use " created","ongoing", completed, or canceled.',
+      });
     }
 
     const upDateData = await meetingModel.findByIdAndUpdate(
@@ -149,42 +129,39 @@ async function aditMeeting(req, res, next) {
   }
 }
 
-
 async function updateMeetingStatus(req, res, next) {
-
   try {
+    const { status } = req.body;
+    const meetingId = req.params.id;
+    const meetingIdM = await meetingModel.findById(meetingId);
+    //  console.log(meetingIdM)
 
-  const {status } = req.body;
-  const meetingId = req.params.id;
-  const meetingIdM = await meetingModel.findById(meetingId);
-//  console.log(meetingIdM)
-  
-  if (!status || !["created", "ongoing", "completed", "canceled"].includes(status)) {
-    return res.status(400).json({
+    if (
+      !status ||
+      !["created", "ongoing", "completed", "canceled"].includes(status)
+    ) {
+      return res.status(400).json({
         message:
           'Invalid status. It should be one of:" created","ongoing", completed, or canceled.',
       });
-  }
-  
+    }
 
-    const meeting = await meetingModel.findByIdAndUpdate(  
-    meetingIdM,
-    {status},
-     { new: true }
+    const meeting = await meetingModel.findByIdAndUpdate(
+      meetingIdM,
+      { status },
+      { new: true }
     );
-
 
     if (!meeting) {
       res.status(400).json({ message: "meeting not found" });
     }
 
-    return res.status(200).json({meeting});
+    return res.status(200).json({ meeting });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
-
 
 async function deleteMeeting(req, res, next) {
   try {

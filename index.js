@@ -19,7 +19,7 @@ const { mongodb } = require("./src/databases/mongodb");
 
 
 var corsOptions = {
-  origin: 'http://localhost:3001',
+  origin: 'http://localhost:3000',
  method: "GET ,POST, PUT, DELETE , PATCH ",
  credentials: true,
 }
@@ -57,5 +57,5 @@ app.use(function (err, req, res, next) {
 
 
 app.listen(PORT, () => {
-  console.log(`app listening on port 3000`);
+  console.log(`app listening on port 4000`);
 });
