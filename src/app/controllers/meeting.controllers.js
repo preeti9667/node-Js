@@ -2,11 +2,24 @@ const meetingModel = require("../models/meeting.model");
 const { HTTP_STATUS } = require("../constants/status.constant");
 const moment = require("moment");
 
+// createMeeting
+
 async function createMeeting(req, res, next) {
   const { title, description, date, startTime, endTime, status } = req.body;
 
-  const start24Hour = moment(startTime, "HH:mm").format("hh:mm A");
-  const end24Hour = moment(endTime, "HH:mm").format("hh:mm A");
+  const EndTime = moment(endTime, "hh:mm A").format("hh:mm A");
+  const StartTime = moment(startTime, "hh:mm A").format("hh:mm A");
+  const meetingDate = moment(date).toDate();
+
+  const todayDate = new Date();
+  
+  if(todayDate > meetingDate) {
+    return res.status(HTTP_STATUS.badRequest).json({
+      status: HTTP_STATUS.badRequest,
+      message: "Invalid meeting date",
+    });
+  }
+
 
   try {
     const isExists = await meetingModel.exists({ title });
@@ -18,32 +31,19 @@ async function createMeeting(req, res, next) {
       });
     }
 
-    if (!title || !description || !date || !startTime || !endTime || !status) {
-      return res
-        .status(400)
-        .json({ message: "All fields are required except status." });
-    }
-
-    if (!["created", "ongoing", "completed", "canceled"].includes(status)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            'Invalid status value. Use " created","ongoing", completed, or canceled.',
-        });
-    }
-
     const meeting = await meetingModel.create({
       title,
       description,
-      date,
-      startTime: start24Hour,
-      endTime: end24Hour,
+      date: meetingDate,
+      startTime: StartTime,
+      endTime: EndTime,
       status,
     });
 
     return res.status(200).json({
       meeting,
+      status: HTTP_STATUS.success,
+      message: "Meeting create",
     });
   } catch (error) {
     console.error(error);
@@ -51,10 +51,11 @@ async function createMeeting(req, res, next) {
   }
 }
 
+
 async function getMeetingList(req, res, next) {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 4;
     const skip = (page - 1) * limit;
 
     const count = await meetingModel.countDocuments();
@@ -88,11 +89,14 @@ async function getMeeting(req, res, next) {
   }
 }
 
-async function aditMeeting(req, res, next) {
+// editMeeting
+
+async function editMeeting(req, res, next) {
   const { title, description, date, startTime, endTime, status } = req.body;
 
-  const start24Hour = moment(startTime, "HH:mm").format("hh:mm A");
-  const end24Hour = moment(endTime, "HH:mm").format("hh:mm A");
+  const EndTime = moment(endTime, "hh:mm A").format("hh:mm A");
+  const StartTime = moment(startTime, "hh:mm A").format("hh:mm A");
+  const Date = moment(date, "L").format("L");
 
   try {
     const meetingId = req.params.id;
@@ -102,49 +106,37 @@ async function aditMeeting(req, res, next) {
       res.status(400).json({ message: "meeting not found" });
     }
 
-    if (!["created", "ongoing", "completed", "canceled"].includes(status)) {
-      return res.status(400).json({
-        message:
-          'Invalid status value. Use " created","ongoing", completed, or canceled.',
-      });
-    }
-
     const upDateData = await meetingModel.findByIdAndUpdate(
       meetingId,
       {
         title,
         description,
-        date,
-        startTime: start24Hour,
-        endTime: end24Hour,
+        date: Date,
+        startTime: StartTime,
+        endTime: EndTime,
         status,
       },
       { new: true }
     );
 
-    return res.status(200).json({ upDateData });
+    return res.status(200).json({
+      upDateData,
+      status: HTTP_STATUS.success,
+      message: "change value successfully",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
 
+// updateMeetingStatus
+
 async function updateMeetingStatus(req, res, next) {
   try {
     const { status } = req.body;
     const meetingId = req.params.id;
     const meetingIdM = await meetingModel.findById(meetingId);
-    //  console.log(meetingIdM)
-
-    if (
-      !status ||
-      !["created", "ongoing", "completed", "canceled"].includes(status)
-    ) {
-      return res.status(400).json({
-        message:
-          'Invalid status. It should be one of:" created","ongoing", completed, or canceled.',
-      });
-    }
 
     const meeting = await meetingModel.findByIdAndUpdate(
       meetingIdM,
@@ -156,12 +148,18 @@ async function updateMeetingStatus(req, res, next) {
       res.status(400).json({ message: "meeting not found" });
     }
 
-    return res.status(200).json({ meeting });
+    return res.status(200).json({
+      meeting,
+      status: HTTP_STATUS.success,
+      message: "",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
+
+// delete meeting
 
 async function deleteMeeting(req, res, next) {
   try {
@@ -172,7 +170,10 @@ async function deleteMeeting(req, res, next) {
       return res.status(404).json({ message: "Meeting not found." });
     }
 
-    return res.status(200).json({ message: "meeting deleted successfully" });
+    return res.status(200).json({
+      status: HTTP_STATUS.success,
+      message: "meeting deleted successfully",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server Error" });
@@ -183,7 +184,7 @@ module.exports = {
   getMeetingList,
   createMeeting,
   getMeeting,
-  aditMeeting,
+  editMeeting,
   updateMeetingStatus,
   deleteMeeting,
 };

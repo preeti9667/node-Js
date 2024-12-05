@@ -1,0 +1,10 @@
+const MEETING_STATUS = {
+  CREATED: "CREATED",
+  ON_GOING: "ON_GOING",
+  COMPLETED: "COMPLETED",
+  CANCELLED: "CANCELLED",
+};
+
+module.exports = {
+  MEETING_STATUS,
+};

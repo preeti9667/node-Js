@@ -1,6 +1,7 @@
 const { HTTP_STATUS } = require("../constants/status.constant");
 
 const validate = async (schema, body, res) => {
+
   try {
     const response = await schema.validate(body);
     if (response.error) {
@@ -12,6 +13,7 @@ const validate = async (schema, body, res) => {
       });
       return false;
     }
+    
     return true;
   } catch (error) {
     console.error(error);
