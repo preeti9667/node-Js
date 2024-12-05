@@ -24,6 +24,9 @@ const meetingSchema = new Schema(
       enum: Object.values(MEETING_STATUS),
       default:MEETING_STATUS.CREATED
     },
+    noOfParticipant: {
+      type: Number
+    }
   },
   {
     timestamps: true,

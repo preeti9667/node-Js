@@ -1,6 +1,7 @@
 const meetingModel = require("../models/meeting.model");
 const { HTTP_STATUS } = require("../constants/status.constant");
 const moment = require("moment");
+const { MEETING_STATUS } = require("../constants/meeting.constant");
 
 // createMeeting
 
@@ -12,14 +13,13 @@ async function createMeeting(req, res, next) {
   const meetingDate = moment(date).toDate();
 
   const todayDate = new Date();
-  
-  if(todayDate > meetingDate) {
+
+  if (todayDate > meetingDate) {
     return res.status(HTTP_STATUS.badRequest).json({
       status: HTTP_STATUS.badRequest,
       message: "Invalid meeting date",
     });
   }
-
 
   try {
     const isExists = await meetingModel.exists({ title });
@@ -51,15 +51,47 @@ async function createMeeting(req, res, next) {
   }
 }
 
-
 async function getMeetingList(req, res, next) {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 4;
     const skip = (page - 1) * limit;
 
-    const count = await meetingModel.countDocuments();
-    const list = await meetingModel.find({}).skip(skip).limit(limit);
+    const status = req.query.status;
+    const match = {};
+    const meetingDate = req.query.date;
+    const fromDate = req.query.fromDate;
+    const toDate = req.query.toDate;
+
+    if (status) {
+      match.status = status;
+    }
+
+    if (meetingDate) {
+      match.date = meetingDate;
+    }
+
+    if (fromDate && toDate) {
+      match.date = {
+        $gte: moment(fromDate).toDate(),
+        $lte: moment(toDate).toDate(),
+      };
+    } else {
+      if (fromDate) {
+        match.date = {
+          $gte: moment(fromDate).toDate(),
+        };
+      }
+
+      if (toDate) {
+        match.date = {
+          $lte: moment(toDate).toDate(),
+        };
+      }
+    }
+
+    const count = await meetingModel.countDocuments(match);
+    const list = await meetingModel.find(match).skip(skip).limit(limit);
 
     return res.status(HTTP_STATUS.success).json({
       status: HTTP_STATUS.success,
