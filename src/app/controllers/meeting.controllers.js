@@ -63,6 +63,8 @@ async function getMeetingList(req, res, next) {
     const fromDate = req.query.fromDate;
     const toDate = req.query.toDate;
 
+    const search = req.query.search;
+
     if (status) {
       match.status = status;
     }
@@ -90,6 +92,10 @@ async function getMeetingList(req, res, next) {
       }
     }
 
+    if (search) {
+      match.title = { $regex: search, $options: "i" };
+    }
+
     const count = await meetingModel.countDocuments(match);
     const list = await meetingModel.find(match).skip(skip).limit(limit);
 
@@ -112,7 +118,7 @@ async function getMeetingList(req, res, next) {
 async function getMeeting(req, res, next) {
   try {
     const meetingId = req.params.id;
-    const meeting = await meetingModel.findById(meetingId);
+    const meeting = await meetingModel.findById({ _id: meetingId });
 
     return res.status(200).json({ meeting });
   } catch (error) {
@@ -132,7 +138,7 @@ async function editMeeting(req, res, next) {
 
   try {
     const meetingId = req.params.id;
-    const meeting = await meetingModel.findById(meetingId);
+    const meeting = await meetingModel.findById({ _id: meetingId });
 
     if (!meeting) {
       res.status(400).json({ message: "meeting not found" });
@@ -168,7 +174,7 @@ async function updateMeetingStatus(req, res, next) {
   try {
     const { status } = req.body;
     const meetingId = req.params.id;
-    const meetingIdM = await meetingModel.findById(meetingId);
+    const meetingIdM = await meetingModel.findById({ _id: meetingId });
 
     const meeting = await meetingModel.findByIdAndUpdate(
       meetingIdM,
@@ -196,7 +202,7 @@ async function updateMeetingStatus(req, res, next) {
 async function deleteMeeting(req, res, next) {
   try {
     const meetingId = req.params.id;
-    const meeting = await meetingModel.findOneAndDelete(meetingId);
+    const meeting = await meetingModel.findOneAndDelete({ _id: meetingId });
 
     if (!meeting) {
       return res.status(404).json({ message: "Meeting not found." });
