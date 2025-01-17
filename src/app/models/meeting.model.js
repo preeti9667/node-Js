@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const { MEETING_STATUS } = require("../constants/meeting.constant");
+const { MEETING_STATUS, MEETING_TYPE} = require("../constants/meeting.constant");
 
 const meetingSchema = new Schema(
   {
@@ -10,7 +10,10 @@ const meetingSchema = new Schema(
     description: {
       type: String,
     },
-    date: {
+    startDate: {
+      type: Date,
+    },
+    endDate: {
       type: Date,
     },
     startTime: {
@@ -23,6 +26,10 @@ const meetingSchema = new Schema(
       type: String,
       enum: Object.values(MEETING_STATUS),
       default:MEETING_STATUS.CREATED
+    },
+    type: {
+      type: String,
+      enum: Object.values(MEETING_TYPE),
     },
     noOfParticipant: {
       type: Number

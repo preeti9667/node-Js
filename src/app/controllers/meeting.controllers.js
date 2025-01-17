@@ -6,15 +6,22 @@ const { MEETING_STATUS } = require("../constants/meeting.constant");
 // createMeeting
 
 async function createMeeting(req, res, next) {
-  const { title, description, date, startTime, endTime, status } = req.body;
+  const { title, description, startDate,endDate, startTime, endTime,type, status } = req.body;
 
   const EndTime = moment(endTime, "hh:mm A").format("hh:mm A");
   const StartTime = moment(startTime, "hh:mm A").format("hh:mm A");
-  const meetingDate = moment(date).toDate();
+  const StartDate = moment(startDate ).toDate();
+  const EndDate = moment(endDate ).toDate();
 
   const todayDate = new Date();
 
-  if (todayDate > meetingDate) {
+  if (todayDate > StartDate) {
+    return res.status(HTTP_STATUS.badRequest).json({
+      status: HTTP_STATUS.badRequest,
+      message: "Invalid meeting date",
+    });
+  }
+  if (todayDate > endDate) {
     return res.status(HTTP_STATUS.badRequest).json({
       status: HTTP_STATUS.badRequest,
       message: "Invalid meeting date",
@@ -34,9 +41,11 @@ async function createMeeting(req, res, next) {
     const meeting = await meetingModel.create({
       title,
       description,
-      date: meetingDate,
+      startDate: StartDate,
+      endDate: EndDate,
       startTime: StartTime,
       endTime: EndTime,
+      type,
       status,
     });
 
@@ -54,12 +63,13 @@ async function createMeeting(req, res, next) {
 async function getMeetingList(req, res, next) {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 4;
+    const limit = parseInt(req.query.limit);
     const skip = (page - 1) * limit;
 
     const status = req.query.status;
     const match = {};
-    const meetingDate = req.query.date;
+    const startDate = req.query.startDate;
+    const endDateDate = req.query.endDatetDate;
     const fromDate = req.query.fromDate;
     const toDate = req.query.toDate;
 
@@ -69,8 +79,8 @@ async function getMeetingList(req, res, next) {
       match.status = status;
     }
 
-    if (meetingDate) {
-      match.date = meetingDate;
+    if (startDate && endDateDate) {
+      match.date =  startDate && endDateDate;
     }
 
     if (fromDate && toDate) {
@@ -130,11 +140,13 @@ async function getMeeting(req, res, next) {
 // editMeeting
 
 async function editMeeting(req, res, next) {
-  const { title, description, date, startTime, endTime, status } = req.body;
+  const { title, description, startDate, endDate, startTime, endTime, status } = req.body;
 
   const EndTime = moment(endTime, "hh:mm A").format("hh:mm A");
   const StartTime = moment(startTime, "hh:mm A").format("hh:mm A");
-  const Date = moment(date, "L").format("L");
+  const StartDate = moment(date, "L").format("L");
+  const EndDate = moment(date, "L").format("L");
+
 
   try {
     const meetingId = req.params.id;
@@ -149,9 +161,11 @@ async function editMeeting(req, res, next) {
       {
         title,
         description,
-        date: Date,
+        startDate: StartDate,
+        endDate: EndDate,
         startTime: StartTime,
         endTime: EndTime,
+        type,
         status,
       },
       { new: true }

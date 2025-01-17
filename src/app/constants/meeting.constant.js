@@ -5,6 +5,15 @@ const MEETING_STATUS = {
   CANCELLED: "CANCELLED",
 };
 
+const MEETING_TYPE = {
+  DAILY: "DAILY",
+  WEEKLY: "WEEKLY",
+  MONTHLY: "MONTHLY",
+  ONCE: "ONCE",
+  
+}
+
 module.exports = {
   MEETING_STATUS,
+  MEETING_TYPE
 };
