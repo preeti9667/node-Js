@@ -69,7 +69,7 @@ async function getMeetingList(req, res, next) {
     const status = req.query.status;
     const match = {};
     const startDate = req.query.startDate;
-    const endDateDate = req.query.endDatetDate;
+    const endDateDate = req.query.endDateDate;
     const fromDate = req.query.fromDate;
     const toDate = req.query.toDate;
 
@@ -79,7 +79,7 @@ async function getMeetingList(req, res, next) {
       match.status = status;
     }
 
-    if (startDate && endDateDate) {
+    if (startDate && endDateDate){
       match.date =  startDate && endDateDate;
     }
 
@@ -138,35 +138,48 @@ async function getMeeting(req, res, next) {
 }
 
 // editMeeting
-
 async function editMeeting(req, res, next) {
-  const { title, description, startDate, endDate, startTime, endTime, status } = req.body;
+  const { title, description, startDate, endDate, startTime, endTime,type, status} = req.body;
 
   const EndTime = moment(endTime, "hh:mm A").format("hh:mm A");
   const StartTime = moment(startTime, "hh:mm A").format("hh:mm A");
-  const StartDate = moment(date, "L").format("L");
-  const EndDate = moment(date, "L").format("L");
+  // const StartDate = moment(startDate, "L").format("L");
+  // const EndDate = moment(endDate, "L").format("L");
 
+  // const todayDate = new Date();
+
+  // if (todayDate > startDate) {
+  //   return res.status(HTTP_STATUS.badRequest).json({
+  //     status: HTTP_STATUS.badRequest,
+  //     message: "Invalid meeting date",
+  //   });
+  // }
+  // if (todayDate > endDate) {
+  //   return res.status(HTTP_STATUS.badRequest).json({
+  //     status: HTTP_STATUS.badRequest,
+  //     message: "Invalid meeting date",
+  //   });
+  // }
 
   try {
     const meetingId = req.params.id;
-    const meeting = await meetingModel.findById({ _id: meetingId });
+    const meeting_id = await meetingModel.findById({ _id: meetingId });
 
-    if (!meeting) {
+    if (!meeting_id) {
       res.status(400).json({ message: "meeting not found" });
     }
 
     const upDateData = await meetingModel.findByIdAndUpdate(
-      meetingId,
+      meeting_id,
       {
         title,
         description,
-        startDate: StartDate,
-        endDate: EndDate,
+        startDate,
+        endDate,
         startTime: StartTime,
         endTime: EndTime,
-        type,
         status,
+        type,
       },
       { new: true }
     );
@@ -177,7 +190,6 @@ async function editMeeting(req, res, next) {
       message: "change value successfully",
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }

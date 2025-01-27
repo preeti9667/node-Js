@@ -6,7 +6,7 @@ const { verifyJwt } = require("../utils/jwt.util");
 async function getUser(req, res, next) {
   try {
     const userId = req.params.id;
-    const user = await userModel.findById(userId);
+    const user = await userModel.findById({_id: userId});
     if (!user) {
       return res.status(HTTP_STATUS.badRequest).json({
         status: HTTP_STATUS.badRequest,
@@ -20,6 +20,8 @@ async function getUser(req, res, next) {
         id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
+        fullName: user.fullName,
+        email: user.email
       },
     });
   } catch (error) {
@@ -31,12 +33,24 @@ async function getUser(req, res, next) {
 async function getUsers(req, res, next) {
     // const users = await userModel.find()
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 4;
-    const skip = (page - 1) * limit;
     
-    const count = await userModel.countDocuments();
-    const list = await userModel.find({}).skip(skip).limit(limit);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit);
+    const skip = (page - 1) * limit;
+    const match = {};
+    const status = req.query.status;
+    const search = req.query.search;
+
+    if (status) {
+      match.status = status;
+    }
+    if (search) {
+      match.firstName = { $regex: search, $options: "i" };
+    }
+
+    const count = await userModel.countDocuments(match);
+
+    const list = await userModel.find(match).skip(skip).limit(limit);
     
     
     return res.status(200).json({
@@ -50,7 +64,6 @@ async function getUsers(req, res, next) {
       }
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }  
 

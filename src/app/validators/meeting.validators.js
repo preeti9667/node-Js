@@ -23,7 +23,6 @@ const addMeetingValidator = async (req, res, next) => {
 const upDateMeetingValidator = async (req, res, next) => {
   const schema = joi.object({
     status: joi.string().valid(...Object.values(MEETING_STATUS)).required()
-
   });
 
   if (await validate(schema, req.body, res)) next();
