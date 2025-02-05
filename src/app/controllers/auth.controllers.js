@@ -7,7 +7,7 @@ const { encryptPassword, comparePassword } = require("../utils/password.util");
 
 async function signUp(req, res, next) {
   try {
-    const { email, password, firstName, lastName, fullName} = req.body;
+    const { email, password, firstName, lastName, fullName,} = req.body;
 
     const isExists = await userModel.exists({ email });
     if (isExists) {
@@ -17,7 +17,7 @@ async function signUp(req, res, next) {
       });
     }
     
-
+   
     const passwordEncrypted = await encryptPassword(password);
     
     const user = await userModel.create({
@@ -27,6 +27,7 @@ async function signUp(req, res, next) {
       lastName,
       fullName
     });
+
 
     const token = await createJwt(
       {

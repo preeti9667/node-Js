@@ -3,10 +3,11 @@ var express = require("express");
 const meetingList = require("../controllers/meeting.controllers")
 
 const {addMeetingValidator, upDateMeetingValidator} = require("../validators/meeting.validators");
+const { AdminAuthMiddleware } = require("../middleware/admin-auth.middleware");
 
 var router = express.Router();
 
-router.get("/", meetingList.getMeetingList );
+router.get("/", AdminAuthMiddleware, meetingList.getMeetingList );
 
 router.get("/:id", meetingList.getMeeting )
 

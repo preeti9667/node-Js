@@ -11,6 +11,7 @@ async function adminUserCreate() {
       password: process.env.ADMIN_PASSWORD,
       name: process.env.ADMIN_NAME,
       phone: process.env.ADMIN_PHONE_NUMBER,
+      
     };
 
     const isExists = await adminModel.exists({ email: data.email });

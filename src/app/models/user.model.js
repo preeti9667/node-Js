@@ -3,6 +3,10 @@ const { Schema } = mongoose;
 
 const userSchema = new Schema(
   {
+    userId: { type: String,
+       unique: true, 
+       required: true 
+      },
     firstName: {
       type: String,
     },
@@ -17,8 +21,13 @@ const userSchema = new Schema(
       type: String,
       lowercase: true,
     },
-    password: {
-      type: String,
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

@@ -33,7 +33,7 @@ const meetingSchema = new Schema(
     },
     noOfParticipant: {
       type: Number
-    }
+    },
   },
   {
     timestamps: true,
