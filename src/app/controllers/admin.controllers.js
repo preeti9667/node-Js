@@ -31,6 +31,8 @@ async function adminUserCreate() {
 }
 
 
+
+
 async function getAdminUser(req, res, next) {
   try {
     const adminId = req.adminId;
@@ -98,8 +100,77 @@ async function login(req, res, next) {
     res.status(500).json({ error: "Internal server Error" });
   }
 }
+
+async function forgotPassword(req, res, next) {
+  try {
+    const { email } = req.body;
+    const admin = await adminModel.findOne({ email });
+
+    if (!admin) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate JWT token for password reset
+    const resetToken = await createJwt(
+        {
+          id: admin._id,
+          email,
+        },
+        process.env.LOGIN_JWT_EXPIRE_IN
+      );
+      
+      admin.resetPasswordToken = resetToken;
+      // admin.resetPasswordExpires = process.env.LOGIN_JWT_EXPIRE_IN;
+
+    await admin.save();
+
+    return res.status(200).json({
+      status: 200,
+      message: "Password reset link generated",
+      result: {
+        resetToken, // Fixed: Use resetToken instead of undefined variable
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+async function resetPassword(req, res, next) {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Find admin with valid reset token
+    const admin = await adminModel.findOne({
+      resetPasswordToken: token,
+    });
+
+    if (!admin) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Encrypt new password
+    const passwordEncrypted = await encryptPassword(newPassword);
+    admin.password = passwordEncrypted;
+    admin.resetPasswordToken = undefined;
+
+    await admin.save();
+
+    return res.status(200).json({
+      status: 200,
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   login,
   adminUserCreate,
   getAdminUser,
+  forgotPassword,
+  resetPassword
 };

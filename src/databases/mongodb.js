@@ -4,6 +4,9 @@ const { adminUserCreate } = require("../app/controllers/admin.controllers");
 async function main() {
   try {
     await mongoose.connect("mongodb://127.0.0.1:27017/my-app");
+    // await mongoose.connect("mongodb+srv://hello:hello@cluster0.rnaml6y.mongodb.net/health");
+   
+
     console.log("MongoDB connected");
     adminUserCreate();
   } catch (error) {

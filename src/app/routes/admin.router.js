@@ -12,6 +12,15 @@ router.post(
   adminValidator.adminLoginValidator,
   adminController.login
 );
+
+router.post(
+  "/forgot-password",
+  adminController.forgotPassword
+);
+router.post(
+  "/reset-password",
+  adminController.resetPassword
+)
 router.get("/profile", AdminAuthMiddleware, adminController.getAdminUser);
 
 router.get("/user-profile/:id", AdminAuthMiddleware, userController.getUser);

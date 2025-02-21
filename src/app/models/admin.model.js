@@ -17,7 +17,11 @@ const adminSchema = new Schema(
       phone: {
         type: String,
       },
+      resetPasswordToken:{
+        type: String,
+      },
      
+       
     },
     {
       timestamps: true,

@@ -4,6 +4,11 @@ const { MEETING_STATUS, MEETING_TYPE} = require("../constants/meeting.constant")
 
 const meetingSchema = new Schema(
   {
+    meetingId: { 
+      type: String,
+      unique: true, 
+      required: true 
+     },
     title: {
       type: String,
     },

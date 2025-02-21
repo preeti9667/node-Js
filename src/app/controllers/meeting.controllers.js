@@ -6,7 +6,7 @@ const { MEETING_STATUS } = require("../constants/meeting.constant");
 // createMeeting
 
 async function createMeeting(req, res, next) {
-  const { title, description, startDate,endDate, startTime, endTime,type, status } = req.body;
+  const { title, description, startDate,endDate, startTime, endTime,type, status, meetingId } = req.body;
 
   const EndTime = moment(endTime, "hh:mm A").format("hh:mm A");
   const StartTime = moment(startTime, "hh:mm A").format("hh:mm A");
@@ -28,6 +28,8 @@ async function createMeeting(req, res, next) {
     });
   }
 
+
+
   try {
     const isExists = await meetingModel.exists({ title });
 
@@ -38,7 +40,18 @@ async function createMeeting(req, res, next) {
       });
     }
 
+    const generateUserId = (len=6) => {
+      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let meetingId = "";
+      for (let i = 0; i < len; i++) {
+        meetingId += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return meetingId;
+    };
+      const MeetingId = generateUserId()
+
     const meeting = await meetingModel.create({
+      meetingId: MeetingId,
       title,
       description,
       startDate: StartDate,
@@ -75,6 +88,9 @@ async function getMeetingList(req, res, next) {
 
     const search = req.query.search;
 
+    const startDateSort = req.query.startDateSort === "desc" ? -1 : 1;
+    const meetingIdSort = req.query.meetingIdSort === "desc" ? -1 : 1;
+
     if (status) {
       match.status = status;
     }
@@ -107,7 +123,7 @@ async function getMeetingList(req, res, next) {
     }
 
     const count = await meetingModel.countDocuments(match);
-    const list = await meetingModel.find(match).skip(skip).limit(limit);
+    const list = await meetingModel.find(match).skip(skip).limit(limit).sort({ startDate: startDateSort, meetingId: meetingIdSort });
 
     return res.status(HTTP_STATUS.success).json({
       status: HTTP_STATUS.success,

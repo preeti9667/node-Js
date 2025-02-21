@@ -106,21 +106,20 @@ async function getUsers(req, res, next) {
      // Sorting for fullName and userId separately
      const fullNameSort = req.query.fullNameSort === "desc" ? -1 : 1;
      const userIdSort = req.query.userIdSort === "desc" ? -1 : 1;
-    
-    
+
+     const users = await userModel.find({ isDeleted: false });
+
 
     if (status) {
       match.status = status;
     }
     if (search) {
-      match.firstName = { $regex: search, $options: "i" };
+      match.fullName = { $regex: search, $options: "i" };
     }
-
-   
 
     const count = await userModel.countDocuments(match);
 
-    const list = await userModel.find(match).skip(skip).limit(limit).sort({ fullName: fullNameSort, userId: userIdSort });
+    const list = await userModel.find(match).skip(skip).limit(limit).sort({ fullName: fullNameSort, userId: userIdSort});
     
     
     return res.status(200).json({
@@ -131,17 +130,36 @@ async function getUsers(req, res, next) {
         limit,
         count,
         list,
+        users
         
       }
     });
   } catch (error) {
     res.status(500).json({ error: "Internal server Error" });
   }  
+}
+
+async function userStatus(req, res, next) {
+
+  try {
+    const user = await userModel.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Toggle logic: If active → deactivate & mark deleted, else activate
+    user.isActive = !user.isActive;
+    user.isDeleted = !user.isActive;
+
+    await user.save();
+    res.json({ message: `User is now ${user.isActive ? "Active" : "Deleted"}` });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server Error" });
+  }
 
 }
 
 module.exports = {
   getUser,
  getUsers,
- createUsers
+ createUsers,
+ userStatus,
 };
