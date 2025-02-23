@@ -9,6 +9,5 @@ router.get("/:id", userController.getUser);
 router.get("/", AdminAuthMiddleware, userController.getUsers);
 router.post("/", userValidator, userController.createUsers);
 router.put("/:id/status", userController.userStatus); 
-// router.put("/:id/active", userController.activeUser);
 
 module.exports = router;

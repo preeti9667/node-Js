@@ -14,6 +14,7 @@ var usersRouter = require("./src/app/routes/user.router");
 var authRouter = require("./src/app/routes/auth.router");
 var adminRouter = require("./src/app/routes/admin.router")
 var meetingRouter = require("./src/app/routes/meeting.router")
+var participateRouter = require("./src/app/routes/participate.router")
 
 const { mongodb } = require("./src/databases/mongodb");
 
@@ -36,6 +37,7 @@ app.use("/users", usersRouter);
 app.use("/auth", authRouter)
 app.use("/admin", adminRouter)
 app.use("/meeting", meetingRouter);
+app.use("/participate",participateRouter);
 mongodb();
 
 
