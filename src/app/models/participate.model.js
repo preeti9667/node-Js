@@ -5,12 +5,22 @@ const { Schema } = mongoose;
 const participateSchema = new Schema(
     {
       userId: {
-        type: mongoose.Types.ObjectId
+        type: Schema.Types.ObjectId,
+        ref: "users",
+        required: true,
       },
-      meetingId: {
-        type: mongoose.Types.ObjectId,
+      date:{
+        type: Date,
+        required: true
       },
-
+      time:{
+        type: String,
+        required: true
+      },
+      text: {
+        type: String,
+        required: true,
+      },
     },
     {
       timestamps: true,
