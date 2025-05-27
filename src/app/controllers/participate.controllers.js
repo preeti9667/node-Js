@@ -27,7 +27,7 @@ async function addParticipate(req, res, next) {
       },
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
@@ -69,7 +69,7 @@ async function participantList(req, res, next) {
       },
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
@@ -166,7 +166,7 @@ async function searchUserForParticipant(req, res, next) {
       }
     })
 
-    console.log(nextPage);
+    // console.log(nextPage);
     return res.status(HTTP_STATUS.success).json({
       status: HTTP_STATUS.success,
       message: "Users list",
@@ -176,7 +176,7 @@ async function searchUserForParticipant(req, res, next) {
       },
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
