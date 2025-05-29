@@ -1,48 +1,110 @@
+const { HTTP_STATUS } = require("../constants/status.constant");
+const DietModel = require('../models/diet.model')
 
-const Note = require('../models/diet.model')
 
-// const getNotes = async (req, res) => {
-//   const { startDate, endDate } = req.query;
-//   try {
-//     const notes = await Note.find({
-//       userId: req.user.id,
-//       date: { $gte: startDate, $lte: endDate },
-//     });
-//     res.json(notes);
-//   } catch (err) {
-//     res.status(500).json({ msg: 'Server error' });
-//   }
-// };
+const addDiet = async (req, res) => {
+  const { userId, date } = req.params;
+  const { time, text } = req.body;
+    try {
+  let userDoc = await DietModel.findOne({ userId });
 
-async function addOrUpdateNote (req, res){
-  const { date, time, text } = req.body;
-  try {
-    let note = await Note.findOne({ userId: req.user.id, date, time });
-    if (note) {
-      note.text = text;
+  if (!userDoc) {
+    userDoc = new DietModel({
+      userId,
+      notes: [{ date, entries: [{ time, text }] }]
+    });
+  } else {
+    const dateObj = userDoc.notes.find(n => n.date === date);
+    if (dateObj) {
+      dateObj.entries.push({ time, text });
     } else {
-      note = new Note({ userId: req.user.id, date, time, text });
+      userDoc.notes.push({ date, entries: [{ time, text }] });
     }
-    await note.save();
-    res.json(note);
-  } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+  }
+
+  await userDoc.save();
+
+  return res.status(200).json({
+    userDoc,
+    status: HTTP_STATUS.success,
+    message: "add diet successfully",
+  });
+
+    } catch (error) {
+      res.status(500).json({ error: "Internal server Error" });
+    }
+};
+
+
+const getDiet = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const userDoc = await DietModel.findOne({ userId });
+    return res.status(200).json({
+      userDoc,
+      status: HTTP_STATUS.success,
+      message: "get diet successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server Error" });
   }
 };
 
-// const deleteNote = async (req, res) => {
-//   const { date, time } = req.body;
-//   try {
-//     await Note.findOneAndDelete({ userId: req.user.id, date, time });
-//     res.json({ msg: 'Note deleted' });
-//   } catch (err) {
-//     res.status(500).json({ msg: 'Server error' });
-//   }
-// };
 
+const updateDiet = async (req, res) => {
+  const { userId, date, id} = req.params;
+  const { time, text } = req.body;
+  try {
+  const userDoc = await DietModel.findOne({ userId });
+  if (!userDoc) return res.status(404).json({ error: 'User not found' });
 
+  const dateObj = userDoc.notes.find(n => n.date === date);
+  if (!dateObj) return res.status(404).json({ error: 'Date not found' });
+
+  const entry = dateObj.entries.find(e => e.id == id);
+  if (!entry) return res.status(404).json({ error: 'Entry not found' });
+
+  entry.time = time;
+  entry.text = text;
+
+  await userDoc.save();
+  return res.status(200).json({
+    userDoc,
+    status: HTTP_STATUS.success,
+    message: "update diet successfully",
+  });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server Error" });
+  }
+};
+
+const removeDiet = async (req, res) => {
+  const { userId, date, id} = req.params;
+  try {
+  const userDoc = await DietModel.findOne({ userId });
+  if (!userDoc) return res.status(404).json({ error: 'User not found' });
+
+  const dateObj = userDoc.notes.find(n => n.date === date);
+  if (!dateObj) return res.status(404).json({ error: 'Date not found' });
+
+  const entry = dateObj.entries.find(e => e.id == id);
+  if (!entry) return res.status(404).json({ error: 'Entry not found' });
+
+  dateObj.entries = dateObj.entries.filter(e => e.id !== id);
+
+  await userDoc.save();
+  return res.status(200).json({
+    userDoc,
+    status: HTTP_STATUS.success,
+    message: "delete diet successfully",
+  });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server Error" });
+  }
+}
 module.exports = {
-//   getNotes,
-  addOrUpdateNote,
-//   deleteNote
+  addDiet,
+  getDiet,
+  updateDiet,
+  removeDiet
 };

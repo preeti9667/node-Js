@@ -31,9 +31,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 
-
-
-
 app.use("/users", usersRouter);
 app.use("/auth", authRouter)
 app.use("/admin", adminRouter)
