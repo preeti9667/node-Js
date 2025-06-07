@@ -4,7 +4,7 @@ const userModel = require("../models/user.model");
 const { createJwt } = require("../utils/jwt.util");
 
 async function createUsers(req, res, next) {
-  const {firstName, lastName, fullName, email,userId} = req.body;
+  const {firstName, lastName, fullName, email,userId,contact} = req.body;
 
  
   try {
@@ -33,7 +33,8 @@ async function createUsers(req, res, next) {
       firstName,
       lastName,
       fullName,
-      email
+      email,
+      contact
     });
 
     const token = await createJwt(
@@ -83,7 +84,8 @@ async function getUser(req, res, next) {
         firstName: user.firstName,
         lastName: user.lastName,
         fullName: user.fullName,
-        email: user.email
+        email: user.email,
+        contact: user.contact
       },
     });
   } catch (error) {
