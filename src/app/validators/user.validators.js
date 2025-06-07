@@ -7,6 +7,7 @@ const userValidator = async (req, res, next) => {
     firstName: joi.string().required(),
     lastName: joi.string().required(),
     fullName: joi.string().required(),
+    contact: joi.string().required(),
   });
 
   try {
