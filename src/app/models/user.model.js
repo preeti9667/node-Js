@@ -3,8 +3,8 @@ const { Schema } = mongoose;
 
 const userSchema = new Schema(
   {
-    userId: { type: String,
-       unique: true, 
+    userId: { 
+      type: String,
        required: true 
       },
     firstName: {
@@ -24,6 +24,9 @@ const userSchema = new Schema(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    contact:{
+      type: String
     },
     isDeleted: {
       type: Boolean,

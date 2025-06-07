@@ -1,13 +1,10 @@
 const joi = require("joi");
 const { validate } = require("../utils/validation.util");
 
-const userValidator = async (req, res, next) => {
+const dietValidator = async (req, res, next) => {
   const schema = joi.object({
-    email: joi.string().email().required(),
-    firstName: joi.string().required(),
-    lastName: joi.string().required(),
-    fullName: joi.string().required(),
-    contact: joi.string().required(),
+    time: joi.string().required(),
+    text: joi.string().required(),
   });
 
   try {
@@ -18,5 +15,5 @@ const userValidator = async (req, res, next) => {
   }
 };
 module.exports = {
-    userValidator
+  dietValidator
 }

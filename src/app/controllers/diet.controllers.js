@@ -1,0 +1,130 @@
+const { HTTP_STATUS } = require("../constants/status.constant");
+const DietModel = require('../models/diet.model')
+
+
+const addDiet = async (req, res) => {
+  const { userId, date } = req.params;
+  const { time, text } = req.body;
+  try {
+    // Find doc where both userId and date match
+    let doc = await DietModel.findOne({ userId, date });
+
+    if (doc) {
+      // Add new entry to existing document
+      doc.entries.push({ time, text });
+      await doc.save();
+      return res.status(200).json({
+        message: "Entry added to existing document",
+        data: doc,
+      });
+    }
+    
+    // Create new document (even if userId already exists for another date)
+    const newDoc = new DietModel({
+      userId,
+      date,
+      entries: [{ time, text }],
+    });
+
+    await newDoc.save();
+    return res.status(201).json({
+      message: "New document created",
+      data: newDoc,
+    });
+
+  } catch (error) {
+    console.error("addDiet error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+const getDiet = async (req, res) => {
+  const { userId, date } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ error: "userId is required" });
+  }
+
+  try {
+    let filter = { userId };
+    if (date) filter.date = date;
+
+    const diets = await DietModel.find(filter);
+
+    return res.status(200).json({
+      message: "Diet records fetched",
+      data: diets,
+    });
+  } catch (error) {
+    console.error("getDiet error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+const updateDiet = async (req, res) => {
+  const { userId, date, id } = req.params;
+  const { text, time } = req.body;
+  try {
+    const doc = await DietModel.findOne({ userId, date,});
+
+    if (!doc) {
+      return res.status(404).json({ error: "Diet entry not found" });
+    }
+
+    const entry = doc.entries.find(e => e.id === id);
+
+    if (!entry) {
+      return res.status(404).json({ error: "Id not found" });
+    }
+
+    entry.time = time;
+    entry.text = text;
+
+    await doc.save();
+
+    return res.status(200).json({
+      message: "Entry updated successfully",
+      data: doc,
+    });
+
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+const removeDiet = async (req, res) => {
+  const { userId, date, id } = req.params;
+  try {
+    const doc = await DietModel.findOne({ userId, date,});
+
+    if (!doc) {
+      return res.status(404).json({ error: "Diet entry not found" });
+    }
+
+    const entry = doc.entries.find(e => e.id === id);
+
+    if (!entry) {
+      return res.status(404).json({ error: "Id not found" });
+    }
+    doc.entries = doc.entries.filter(e => e.id !== id);
+    await doc.save();
+
+    return res.status(200).json({
+      message: "Entry removed successfully",
+    });
+
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+module.exports = {
+  addDiet,
+  getDiet,
+  updateDiet,
+  removeDiet
+};
