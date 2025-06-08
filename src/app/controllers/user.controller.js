@@ -4,11 +4,10 @@ const userModel = require("../models/user.model");
 const { createJwt } = require("../utils/jwt.util");
 
 async function createUsers(req, res, next) {
-  const {firstName, lastName, fullName, email,userId,contact} = req.body;
+  const { firstName, lastName, fullName, email, userId, contact } = req.body;
 
- 
   try {
-    const isExists = await userModel.exists({ email});
+    const isExists = await userModel.exists({ email });
 
     if (isExists) {
       return res.status(HTTP_STATUS.conflict).json({
@@ -17,24 +16,26 @@ async function createUsers(req, res, next) {
       });
     }
 
-    const generateUserId = (len=6) => {
+    const generateUserId = (len = 6) => {
       const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
       let userId = "";
       for (let i = 0; i < len; i++) {
-        userId += characters.charAt(Math.floor(Math.random() * characters.length));
+        userId += characters.charAt(
+          Math.floor(Math.random() * characters.length)
+        );
       }
       return userId;
     };
-      const userid = generateUserId()
-      // console.log(userid)
+    const userid = generateUserId();
+    // console.log(userid)
 
     const user = await userModel.create({
-    userId: userid,
+      userId: userid,
       firstName,
       lastName,
       fullName,
       email,
-      contact
+      contact,
     });
 
     const token = await createJwt(
@@ -55,20 +56,16 @@ async function createUsers(req, res, next) {
         token,
       },
     });
-
-    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }
 
-
-
 async function getUser(req, res, next) {
   try {
     const user_Id = req.params.id;
-    const user = await userModel.findById({_id: user_Id});
+    const user = await userModel.findById({ _id: user_Id });
     if (!user) {
       return res.status(HTTP_STATUS.badRequest).json({
         status: HTTP_STATUS.badRequest,
@@ -85,7 +82,7 @@ async function getUser(req, res, next) {
         lastName: user.lastName,
         fullName: user.fullName,
         email: user.email,
-        contact: user.contact
+        contact: user.contact,
       },
     });
   } catch (error) {
@@ -95,22 +92,20 @@ async function getUser(req, res, next) {
 }
 
 async function getUsers(req, res, next) {
-    // const users = await userModel.find()
+  // const users = await userModel.find()
   try {
-    
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit);
     const skip = (page - 1) * limit;
     const match = {};
     const status = req.query.status;
     const search = req.query.search;
-   
-     // Sorting for fullName and userId separately
-     const fullNameSort = req.query.fullNameSort === "desc" ? -1 : 1;
-     const userIdSort = req.query.userIdSort === "desc" ? -1 : 1;
 
-     const users = await userModel.find({ isDeleted: false });
+    // Sorting for fullName and userId separately
+    const fullNameSort = req.query.fullNameSort === "desc" ? -1 : 1;
+    const userIdSort = req.query.userIdSort === "desc" ? -1 : 1;
 
+    const users = await userModel.find({ isDeleted: false });
 
     if (status) {
       match.status = status;
@@ -121,28 +116,29 @@ async function getUsers(req, res, next) {
 
     const count = await userModel.countDocuments(match);
 
-    const list = await userModel.find(match).skip(skip).limit(limit).sort({ fullName: fullNameSort, userId: userIdSort});
-    
-    
+    const list = await userModel
+      .find(match)
+      .skip(skip)
+      .limit(limit)
+      .sort({ fullName: fullNameSort, userId: userIdSort });
+
     return res.status(200).json({
       status: 200,
       message: "users list",
-      data:{
+      data: {
         page,
         limit,
         count,
         list,
-        users
-        
-      }
+        users,
+      },
     });
   } catch (error) {
     res.status(500).json({ error: "Internal server Error" });
-  }  
+  }
 }
 
 async function userStatus(req, res, next) {
-
   try {
     const user = await userModel.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -152,16 +148,28 @@ async function userStatus(req, res, next) {
     user.isDeleted = !user.isActive;
 
     await user.save();
-    res.json({ message: `User is now ${user.isActive ? "Active" : "Deleted"}` });
+    res.json({
+      message: `User is now ${user.isActive ? "Active" : "Deleted"}`,
+    });
   } catch (err) {
     res.status(500).json({ error: "Internal server Error" });
   }
 
+  async function userDashboard(req, res, next) {
+    try {
+      const user = await userModel.findById(req.params.id);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+     
+    } catch (err) {
+      res.status(500).json({ error: "Internal server Error" });
+    }
+  }
 }
 
 module.exports = {
   getUser,
- getUsers,
- createUsers,
- userStatus,
+  getUsers,
+  createUsers,
+  userStatus,
 };
