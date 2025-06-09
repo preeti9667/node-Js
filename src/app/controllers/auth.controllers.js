@@ -56,31 +56,23 @@ async function signUp(req, res, next) {
 
 async function login(req, res, next) {
   try {
-    const { email, password } = req.body;
+    const { email, userId} = req.body;
 
-    if (!email || !password) {
+    if (!email || !userId) {
       return res.status(400).json({
         status: 400,
-        message: "Email or password required",
+        message: "Email or userId required",
       });
     }
 
-    const loginUser = await userModel.findOne({ email });
+    const loginUser = await userModel.findOne({ email,userId });
     if (!loginUser) {
       return res.status(400).json({
         status: 400,
-        message: "Incorrect email & password",
+        message: "Incorrect email & userId",
       });
     }
-
-    const match = await comparePassword(password, loginUser.password);
-    if (!match) {
-      return res.status(400).json({
-        status: 400,
-        message: "Incorrect email & password",
-      });
-    }
-
+    
     const token = await createJwt(
       {
         id: loginUser._id,
@@ -93,11 +85,11 @@ async function login(req, res, next) {
       status: 200,
       message: "Login success",
       result: {
+        id: loginUser._id,
         token,
       },
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal server Error" });
   }
 }

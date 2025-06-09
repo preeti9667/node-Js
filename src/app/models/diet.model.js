@@ -7,7 +7,7 @@ const entrySchema = new mongoose.Schema({
 
 const userDateNotesSchema = new mongoose.Schema({
   userId: { type: String, required: true },
-  date: { type: String, required: true },
+  date: { type: Date, required: true },
   entries: [entrySchema],
 }, { timestamps: true });
 

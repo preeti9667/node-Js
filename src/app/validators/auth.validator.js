@@ -4,7 +4,7 @@ const { validate } = require("../utils/validation.util");
 const signupValidator = async (req, res, next) => {
   const schema = joi.object({
     email: joi.string().email().required(),
-    password: joi.string().min(6).required(),
+    // password: joi.string().min(6).required(),
     firstName: joi.string().required(),
     lastName: joi.string().required(),
     fullName: joi.string().required(),
@@ -21,7 +21,7 @@ const signupValidator = async (req, res, next) => {
 const loginValidator = async (req, res, next) => {
   const schema = joi.object({
     email: joi.string().email().required(),
-    password: joi.string().min(6).required(),
+    userId: joi.string().required(),
   });
   if (await validate(schema, req.body, res)) next();
 };

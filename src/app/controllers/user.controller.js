@@ -1,4 +1,6 @@
 const { HTTP_STATUS } = require("../constants/status.constant");
+const DietModel = require("../models/diet.model");
+const ParticipantModel = require("../models/participate.model");
 // const adminModel = require("../models/admin.model");
 const userModel = require("../models/user.model");
 const { createJwt } = require("../utils/jwt.util");
@@ -155,21 +157,69 @@ async function userStatus(req, res, next) {
     res.status(500).json({ error: "Internal server Error" });
   }
 
-  async function userDashboard(req, res, next) {
+  
+}
+
+async function userDashboard(req, res, next) {
     try {
-      const user = await userModel.findById(req.params.id);
+      const userId = req.userId;
+      const user = await userModel.findById(userId);
       if (!user) return res.status(404).json({ message: "User not found" });
 
-     
+      const meetings = await ParticipantModel.aggregate([
+        {
+          $match: {
+            userId: userId,
+          },
+        },
+        {
+          $lookup: {
+            from: "meetings",
+            localField: "meetingId",
+            foreignField: "_id",
+            as: "list",
+          },
+        },
+        {
+          $unwind: {
+            path: "$list",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: "$list",
+          },
+        },
+      ]);
+
+      const next15DaysDate = new Date(new Date().setUTCHours(0, 0, 0, 0));
+      next15DaysDate.setDate(next15DaysDate.getDate() + 15);
+      const diets = await DietModel.find({
+        userId,
+        date: {
+          $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+          $lt: next15DaysDate
+        },
+      })
+      res.status(200).json({
+        status: 200,
+        message: "user dashboard",
+        data: {
+          user,
+          meetings,
+          diets
+        },
+      })
     } catch (err) {
       res.status(500).json({ error: "Internal server Error" });
     }
   }
-}
 
 module.exports = {
   getUser,
   getUsers,
   createUsers,
   userStatus,
+  userDashboard,
 };

@@ -7,7 +7,7 @@ const addDiet = async (req, res) => {
   const { time, text } = req.body;
   try {
     // Find doc where both userId and date match
-    let doc = await DietModel.findOne({ userId, date });
+    let doc = await DietModel.findOne({ userId, date: new Date(date) });
 
     if (doc) {
       // Add new entry to existing document
@@ -22,7 +22,7 @@ const addDiet = async (req, res) => {
     // Create new document (even if userId already exists for another date)
     const newDoc = new DietModel({
       userId,
-      date,
+      date: new Date(date),
       entries: [{ time, text }],
     });
 
