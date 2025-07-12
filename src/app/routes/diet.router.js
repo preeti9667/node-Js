@@ -12,5 +12,6 @@ router.get('/:userId', dietController.getDiet);
 router.put('/:userId/:date/:id',dietValidator, dietController.updateDiet);
 
 router.delete('/:userId/:date/:id', dietController.removeDiet);
+router.post('/:userId/:fromDate/:toDate', dietController.copyDietToAnotherDay);
 
-module.exports = router;
+module.exports = router
