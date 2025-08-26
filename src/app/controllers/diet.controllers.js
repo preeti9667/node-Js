@@ -5,17 +5,17 @@ const moment = require("moment");
 
 const addDiet = async (req, res) => {
   const { userId, date } = req.params;
-  const { time, text } = req.body;
+const { time, text } = req.body;                                    
 
    const Time = moment(time, "hh:mm A").format("hh:mm A");
 
-  try {
+  try {      
     // Find doc where both userId and date match
     let doc = await DietModel.findOne({ userId, date: new Date(date) });
 
     if (doc) {
       // Add new entry to existing document
-      doc.entries.push({ time: Time, text });
+    doc.entries.push({ time: Time, text });                                           
       await doc.save();
       return res.status(200).json({
         message: "Entry added to existing document",
